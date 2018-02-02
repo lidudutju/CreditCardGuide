@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">信用卡指南</string>
+    <string name="home_tab_home">首页</string>
+    <string name="home_tab_forum">论坛</string>
+    <string name="home_tab_favorite">收藏</string>
+
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="customYellow">#F7C17F</color>
+    <color name="customRed">#D1758E</color>
+    <color name="customGreen">#55B29F</color>
+
+    <color name="customWhite">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="black_33">#333333</color>
+    <color name="default_divider">#d7d7d7</color>
+    <color name="waimai_red">#ff2d4b</color>
+
+    <color name="gray_a6">#a6a6a6</color>
+
+</resources>

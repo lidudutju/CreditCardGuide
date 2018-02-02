@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="list_item_image" type="id" />
+    <item name="list_item_name" type="id" />
+    <item name="list_item_desc" type="id" />
+    <item name="list_item_level" type="id" />
+
+    <item name="detail_item_image" type="id" />
+    <item name="detail_item_name" type="id" />
+    <item name="detail_item_level" type="id" />
+    <item name="detail_item_currency" type="id" />
+    <item name="detail_item_org" type="id" />
+    <item name="detail_item_desc" type="id" />
+
+    <item name="fragment_container" type="id" />
+
+    <item name="activity_webview" type="id" />
+
+    <item name="home_tab_text" type="id" />
+    <item name="home_tab_icon" type="id" />
+
+</resources>
