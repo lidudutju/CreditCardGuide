@@ -12,7 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/BaseTheme">
 
-        <activity android:name="lidu.me.creditcardguide.ui.MainActivity">
+        <activity
+            android:name="lidu.me.creditcardguide.ui.MainActivity"
+            android:screenOrientation="portrait">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,10 +24,19 @@
 
         </activity>
 
-        <activity android:name="lidu.me.creditcardguide.ui.WebViewActivity" />
-        <activity android:name="lidu.me.creditcardguide.ui.ThreadListActivity" />
-        <activity android:name="lidu.me.creditcardguide.ui.ThreadDetailActivity" />
-        <activity android:name="lidu.me.creditcardguide.ui.CardDetailActivity" />
+        <activity
+            android:name="lidu.me.creditcardguide.ui.WebViewActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="lidu.me.creditcardguide.ui.ThreadListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="lidu.me.creditcardguide.ui.ThreadDetailActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="lidu.me.creditcardguide.ui.CardDetailActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 
