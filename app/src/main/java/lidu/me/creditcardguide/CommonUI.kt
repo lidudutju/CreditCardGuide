@@ -10,6 +10,7 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.imagepipeline.image.ImageInfo
+import lidu.me.creditcardguide.widget.PullToRefreshListView
 import lidu.me.creditcardguide.widget.CustomViewPager
 import lidu.me.creditcardguide.widget.HomeTabView
 import lidu.me.creditcardguide.widget.WhiteTitleBar
@@ -29,6 +30,10 @@ object CommonUI {
 
     inline fun ViewManager.customViewPager(theme: Int = 0, init: CustomViewPager.() -> Unit): CustomViewPager {
         return ankoView({ CustomViewPager(it) }, theme, { init() })
+    }
+
+    inline fun ViewManager.pullToRefreshListView(theme: Int = 0, init: PullToRefreshListView.() -> Unit): PullToRefreshListView {
+        return ankoView({ PullToRefreshListView(it) }, theme, { init() })
     }
 
     inline fun ViewManager.titleLayout(theme: Int = 0) = titleLayout(theme) {}

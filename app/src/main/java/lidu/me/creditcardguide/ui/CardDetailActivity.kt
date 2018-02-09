@@ -166,7 +166,7 @@ class CardDetailActivity : BaseActivity() {
                     firstDetailTitle = textView {
                         textSize = 14f
                     }.lparams {
-                        width = dip(20)
+                        width = dip(50)
                     }
 
                     firstDetailContent = textView {
@@ -184,6 +184,8 @@ class CardDetailActivity : BaseActivity() {
 
                     secondDetailTitle = textView {
                         textSize = 14f
+                    }.lparams {
+                        width = dip(50)
                     }
 
                     secondDetailContent = textView {
@@ -201,6 +203,8 @@ class CardDetailActivity : BaseActivity() {
 
                     thirdDetailTitle = textView {
                         textSize = 14f
+                    }.lparams {
+                        width = dip(50)
                     }
 
                     thirdDetailContent = textView {

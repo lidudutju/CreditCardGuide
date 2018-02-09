@@ -19,7 +19,7 @@ object TaskRepository : AnkoLogger {
         retrofitApi.getList(pageSize, "15")
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code.equals("200")) {
+                    if (it.code == "200") {
                         return it
                     }
                 }
@@ -36,7 +36,7 @@ object TaskRepository : AnkoLogger {
         retrofitApi.getForumList()
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code.equals("200")) {
+                    if (it.code == "200") {
                         return it
                     }
                 }
@@ -47,7 +47,7 @@ object TaskRepository : AnkoLogger {
         retrofitApi.getThreadList(fid, pageSize, pageNum, "110100", "1")
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code.equals("200")) {
+                    if (it.code == "200") {
                         return it
                     }
                 }
@@ -58,18 +58,18 @@ object TaskRepository : AnkoLogger {
         retrofitApi.getThreadDetail(tid)
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code.equals("200")) {
+                    if (it.code == "200") {
                         return it
                     }
                 }
         return null
     }
 
-    suspend fun getPostList(pageSize: String, pageCount: String, isLandloar: String, tid: String): ThreadPostsData? {
-        retrofitApi.getPostList(pageSize, pageCount, isLandloar, tid)
+    suspend fun getPostList(pageSize: String, pageCount: String, isLandload: String, tid: String): ThreadPostsData? {
+        retrofitApi.getPostList(pageSize, pageCount, isLandload, tid)
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code.equals("200")) {
+                    if (it.code == "200") {
                         return it
                     }
                 }

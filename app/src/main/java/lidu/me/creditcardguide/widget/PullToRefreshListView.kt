@@ -1,4 +1,4 @@
-package lidu.me.creditcardguide.ui
+package lidu.me.creditcardguide.widget
 
 import android.annotation.SuppressLint
 import android.content.Context

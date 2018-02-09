@@ -114,6 +114,10 @@ class ThreadHeaderViewHolder(val ctx: Context) : AnkoViewHolder<ThreadDetailMode
         groupLevel.text = data.groupTitle
         viewsNum.text = "已阅读: " + data.views
         threadDesc.text = data.shareDesc
-        replyNum.text = "评论(" + data.replies + ")"
+        if (data.replies == "0") {
+            replyNum.visibility = View.GONE
+        } else {
+            replyNum.text = "评论(" + data.replies + ")"
+        }
     }
 }

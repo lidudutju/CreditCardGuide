@@ -11,7 +11,7 @@ import lidu.me.creditcardguide.ui.AnkoViewHolder
  */
 open class AnkoListAdapter<in VM : Any, out VH : AnkoViewHolder<VM>>(
         private val context: Context,
-        private val data: List<VM>,
+        private var data: List<VM>,
         private val factory: (ctx: Context) -> VH) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
@@ -37,5 +37,10 @@ open class AnkoListAdapter<in VM : Any, out VH : AnkoViewHolder<VM>>(
 
     override fun getCount(): Int {
         return data.size
+    }
+
+    public fun updateData(newData: List<VM>) {
+        data = newData
+        notifyDataSetChanged()
     }
 }
