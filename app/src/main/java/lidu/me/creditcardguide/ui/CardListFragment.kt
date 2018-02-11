@@ -15,7 +15,6 @@ import lidu.me.creditcardguide.model.CardListItemModel
 import lidu.me.creditcardguide.network.TaskRepository
 import lidu.me.creditcardguide.widget.PullToRefreshListView
 import org.jetbrains.anko.*
-import org.jetbrains.anko.support.v4.toast
 
 /**
  * Created by lidu on 2018/1/11.
@@ -25,6 +24,7 @@ class CardListFragment : BaseFragment() {
     private val dataList: ArrayList<CardListItemModel> = ArrayList(32)
     private lateinit var adapter: AnkoListAdapter<CardListItemModel, AnkoViewHolder<CardListItemModel>>
     private lateinit var listView: ListView
+    private lateinit var pullToRefreshView: PullToRefreshListView
 
     private var page: Int = 1
 
@@ -35,6 +35,7 @@ class CardListFragment : BaseFragment() {
             titleLayout(title = "首页")
 
             pullToRefreshListView {
+                pullToRefreshView = this
                 setMode(PullToRefreshListView.Mode.BOTH)
                 listView = getRefreshableView()
                 setOnRefreshListener(onRefreshListener)
@@ -47,7 +48,7 @@ class CardListFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        adapter = CardListAdapter(context, dataList)
+        adapter = CardListAdapter(context!!, dataList)
         listView.adapter = adapter
         loadData()
     }
@@ -59,6 +60,7 @@ class CardListFragment : BaseFragment() {
                 if (data?.data?.list != null) {
                     dataList.addAll(data.data.list)
                     adapter.updateData(dataList)
+                    pullToRefreshView.onRefreshComplete()
                 }
 
             }
@@ -74,13 +76,11 @@ class CardListFragment : BaseFragment() {
             page = 1
             dataList.clear()
             loadData()
-            toast("on refresh!!")
         }
 
         override fun onLoadMore(listView: ListView) {
             page++
             loadData()
-            toast("on load more!!")
         }
 
     }

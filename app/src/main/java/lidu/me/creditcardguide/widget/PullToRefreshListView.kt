@@ -5,9 +5,11 @@ import android.content.Context
 import android.support.v4.view.ViewCompat
 import android.util.AttributeSet
 import android.view.*
+import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ListView
+import com.airbnb.lottie.LottieAnimationView
 
 /**
  * Created by lidu on 2018/2/8.
@@ -26,13 +28,17 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
 
     private var lastMotionX: Float = 0f
     private var initialMotionX: Float = 0f
+    private var pullScrollSize: Int = 0
 
     private lateinit var refreshableView: ListView
     private lateinit var refreshableViewWrapper: FrameLayout
 
-    private var headerLayout: View? = null
-    private var footerLayout: View? = null
+    private var headerLayout: View = getDefaultHeaderLoading()
+    private var footerLayout: View = getDefaultFooterLoading()
+
     private var onRefreshListener: OnRefreshListener? = null
+
+    private var smoothScrollRunnable: SmoothScrollRunnable? = null
 
     private var mode: Mode = Mode.getDefault()
     private var currentMode: Mode = Mode.PULL_FROM_START
@@ -44,16 +50,17 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
 
     public fun setHeaderLayout(header: View) {
         headerLayout = header
-        updateHeaderAndFooter()
+        updateLoadingView()
     }
 
     public fun setFooterLayout(footer: View) {
         footerLayout = footer
-        updateHeaderAndFooter()
+        updateLoadingView()
     }
 
     public fun setMode(mode: Mode) {
         this.mode = mode
+        updateLoadingView()
     }
 
     public fun getRefreshableView(): ListView {
@@ -64,6 +71,12 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
         onRefreshListener = listener
     }
 
+    public fun onRefreshComplete() {
+        if (isRefreshing()) {
+            setState(State.RESET)
+        }
+    }
+
     private fun initLayout() {
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER
@@ -72,10 +85,11 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
 
         addRefreshableListView()
 
-        updateHeaderAndFooter()
+        updateLoadingView()
+
     }
 
-    private fun updateHeaderAndFooter() {
+    private fun updateLoadingView() {
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT)
         layoutParams.gravity = Gravity.CENTER
@@ -86,7 +100,7 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
             }
 
             if (mode.showHeaderLoadingLayout()) {
-                addView(it, 0, layoutParams)
+                addView(it, 0, it.layoutParams ?: layoutParams)
             }
         }
 
@@ -95,29 +109,66 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
                 removeView(it)
             }
             if (mode.showFooterLoadingLayout()) {
-                addView(it, -1, layoutParams)
+                addView(it, -1, it.layoutParams ?: layoutParams)
             }
         }
+
+        currentMode = if (mode == Mode.BOTH) Mode.PULL_FROM_START else Mode.BOTH
 
         refreshLoadingViewSize()
     }
 
-    private fun refreshLoadingViewSize() {
-        val maxPullScroll = (getMaxPullScroll() * 1.2f).toInt()
+    private fun getDefaultHeaderLoading(): View {
+        val header = LottieAnimationView(ctx)
+        header.setAnimation("refreshing.json")
+        header.loop(true)
+        header.playAnimation()
+        return header
+    }
 
-        setHeight(headerLayout, maxPullScroll)
-        setHeight(footerLayout, maxPullScroll)
-        val pTop = -maxPullScroll
-        val pBottom = -maxPullScroll
+
+    private fun getDefaultFooterLoading(): View {
+        val footer = LottieAnimationView(ctx)
+        footer.setAnimation("loading_rainbow.json")
+        footer.loop(true)
+        footer.playAnimation()
+        return footer
+    }
+
+    private fun refreshLoadingViewSize() {
+        val maxPullScroll = (getMaxPullScroll() * 0.2f).toInt()
+
+        val pTop = if (mode.showHeaderLoadingLayout()) {
+            setHeight(headerLayout, maxPullScroll)
+            -maxPullScroll
+        } else {
+            0
+        }
+
+        val pBottom = if (mode.showFooterLoadingLayout()) {
+            setHeight(footerLayout, maxPullScroll)
+            -maxPullScroll
+        } else {
+            0
+        }
 
         setPadding(paddingLeft, pTop, paddingRight, pBottom)
     }
 
+    protected fun refreshRefreshableViewSize(w: Int, h: Int) {
+        val lp = refreshableViewWrapper.layoutParams
+        if (lp.height != h) {
+            lp.height = h
+            refreshableViewWrapper.requestLayout()
+        }
+
+    }
+
     private fun setHeight(view: View?, height: Int) {
         view?.let {
-            val lp = view.layoutParams
-            lp.height = height
-            view.requestLayout()
+            val lp = it.layoutParams
+            lp?.height = height
+            it.requestLayout()
         }
     }
 
@@ -222,18 +273,18 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
                     isBeingDragged = false
 
                     if (currentState == State.RELEASE_TO_REFRESH) {
-                        setState(State.REFRESHING)
                         if (currentMode == Mode.PULL_FROM_START) {
                             onRefreshListener?.onRefresh(getRefreshableView())
                         } else if (currentMode == Mode.PULL_FROM_END) {
                             onRefreshListener?.onLoadMore(getRefreshableView())
                         }
+                        setState(State.REFRESHING)
                         return true
                     }
 
 
                     if (isRefreshing()) {
-                        setHeaderScroll(0)
+                        smoothScrollTo(0)
                         return true
                     }
 
@@ -246,13 +297,24 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
         return false
     }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+
+        refreshLoadingViewSize()
+
+        refreshRefreshableViewSize(w, h)
+
+        post {
+            requestLayout()
+        }
+    }
+
     private fun setState(state: State) {
         currentState = state
 
         when (state) {
             State.RESET -> {
-                isBeingDragged = false
-                setHeaderScroll(0)
+                onReset()
             }
             State.PULL_TO_REFRESH -> {
 
@@ -260,18 +322,22 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
             State.REFRESHING -> {
                 when (currentMode) {
                     Mode.PULL_FROM_END, Mode.MANUAL_REFRESH_ONLY -> {
-                        setHeaderScroll(100)
+                        smoothScrollTo(getFooterHeight())
                     }
                     else -> {
-                        setHeaderScroll(-100)
+                        smoothScrollTo(-getHeaderHeight())
                     }
                 }
-                setState(State.RESET)
             }
             else -> {
 
             }
         }
+    }
+
+    private fun onReset() {
+        isBeingDragged = false
+        smoothScrollTo(0)
     }
 
     private fun isRefreshing(): Boolean = currentState == State.REFRESHING
@@ -280,15 +346,18 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
 
     private fun pullEvent() {
         var newScrollValue = 0
-        val itemHeight = 100
+        var itemHeight = 0
         newScrollValue = when (currentMode) {
             Mode.PULL_FROM_END -> {
+                itemHeight = getFooterHeight()
                 Math.round(Math.max(initialMotionY - lastMotionY, 0f) / FRICTION)
             }
             Mode.PULL_FROM_START -> {
+                itemHeight = getHeaderHeight()
                 Math.round(Math.min(initialMotionY - lastMotionY, 0f) / FRICTION)
             }
             else -> {
+                itemHeight = getHeaderHeight()
                 Math.round(Math.min(initialMotionY - initialMotionY, 0f) / FRICTION)
             }
 
@@ -306,15 +375,22 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
 
     }
 
-    private fun setHeaderScroll(value: Int) {
+    private fun getFooterHeight(): Int = headerLayout?.layoutParams?.height ?: 100
+
+    private fun getHeaderHeight(): Int = footerLayout?.layoutParams?.height ?: 100
+
+
+    fun setHeaderScroll(value: Int) {
         when {
-            value > 0 -> headerLayout?.visibility = View.VISIBLE
-            value < 0 -> footerLayout?.visibility = View.VISIBLE
-            else -> {
+            value > 0 -> footerLayout?.visibility = View.VISIBLE
+            value < 0 -> headerLayout?.visibility = View.VISIBLE
+            value == 0 -> {
                 headerLayout?.visibility = View.INVISIBLE
                 footerLayout?.visibility = View.INVISIBLE
             }
         }
+
+        pullScrollSize = -value
 
         if (value == 0) {
             ViewCompat.setLayerType(refreshableViewWrapper, View.LAYER_TYPE_NONE, null)
@@ -323,6 +399,16 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
         }
 
         scrollTo(0, value)
+    }
+
+    private fun smoothScrollTo(newScrollValue: Int, duration: Long = SMOOTH_SCROLL_DURATION_MS) {
+        smoothScrollRunnable?.stop()
+
+        if (scrollY != newScrollValue) {
+            smoothScrollRunnable = SmoothScrollRunnable(scrollY, newScrollValue,
+                    duration, this)
+            post(smoothScrollRunnable)
+        }
     }
 
     private fun getMaxPullScroll() = Math.round(height / FRICTION)
@@ -454,6 +540,46 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
 
     companion object {
         const val FRICTION = 2.8f
+        const val SMOOTH_SCROLL_DURATION_MS = 200L
+
+    }
+
+    class SmoothScrollRunnable(
+            private val scrollFromY: Int,
+            private val scrollToY: Int,
+            private val duration: Long,
+            private val pullToRefreshView: PullToRefreshListView
+    ) : Runnable {
+        private val interpolator = DecelerateInterpolator()
+
+        private var startTime: Long = -1L
+        private var currentY: Int = -1
+
+        private var continueRunning = true
+
+        override fun run() {
+            if (startTime == -1L) {
+                startTime = System.currentTimeMillis()
+            } else {
+                var normalizedTime = 1000 * (System.currentTimeMillis() - startTime) / duration
+                normalizedTime = Math.max(Math.min(normalizedTime, 1000), 0)
+
+                val deltaY = Math.round((scrollFromY - scrollToY)
+                        * interpolator.getInterpolation(normalizedTime / 1000f))
+                currentY = scrollFromY - deltaY
+                pullToRefreshView.setHeaderScroll(currentY)
+            }
+
+            if (continueRunning && scrollToY != currentY) {
+                pullToRefreshView.postOnAnimation(this)
+            }
+        }
+
+        fun stop() {
+            continueRunning = false
+            pullToRefreshView.removeCallbacks(this)
+        }
+
     }
 
 }

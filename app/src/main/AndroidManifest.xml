@@ -3,6 +3,7 @@
     package="lidu.me.creditcardguide">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <application
         android:name="lidu.me.creditcardguide.CustomApplication"

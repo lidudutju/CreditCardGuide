@@ -16,9 +16,9 @@ import org.jetbrains.anko.AnkoLogger
  */
 abstract class BaseFragment : Fragment(), AnkoComponent<Context>, AnkoLogger {
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return createView(AnkoContext.create(context))
+        return createView(AnkoContext.create(context!!))
     }
 
     abstract override fun createView(ui: AnkoContext<Context>): View

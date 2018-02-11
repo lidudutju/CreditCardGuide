@@ -60,7 +60,7 @@ class ForumListFragment : BaseFragment() {
     }
 
     private fun refreshUi() {
-        val adapter = ForumListAdapter(context, forumList)
+        val adapter = ForumListAdapter(context!!, forumList)
         forumGridView.adapter = adapter
     }
 
