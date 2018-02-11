@@ -24,7 +24,8 @@ import org.jetbrains.anko.*
  */
 class ThreadDetailActivity : BaseActivity() {
 
-    private lateinit var tid: String
+    private var tid: String? = null
+    private var imageList: ArrayList<String>? = null
 
     private lateinit var model: ThreadDetailModel
     private var postList: ArrayList<PostListItemModel> = ArrayList(16)
@@ -59,7 +60,11 @@ class ThreadDetailActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tid = intent.getStringExtra(INTENT_KEY_TID)
+
+        val bundle = intent.getBundleExtra(INTENT_KEY_BUNDLE)
+        tid = bundle.getString(INTENT_KEY_TID)
+        imageList = bundle.getStringArrayList(INTENT_KEY_IMAGE_LIST)
+
         titleBar.showBackButton(View.OnClickListener { finish() })
 
         adapter = PostListAdapter(ctx, postList)
@@ -70,14 +75,14 @@ class ThreadDetailActivity : BaseActivity() {
 
     private fun loadData() {
         launch(UI) {
-            val posts = TaskRepository.getPostList("1", "10", "2", tid)
+            val posts = TaskRepository.getPostList("1", "10", "2", tid ?: "0")
             posts?.let {
                 postList.addAll(posts.data.list)
                 adapter.updateData(postList)
 
             }
 
-            val data = TaskRepository.getThreadDetail(tid)
+            val data = TaskRepository.getThreadDetail(tid ?: "0")
             data.let {
                 if (data?.data != null) {
                     model = data.data
@@ -92,10 +97,16 @@ class ThreadDetailActivity : BaseActivity() {
         threadHeaderViewHolder = ThreadHeaderViewHolder(ctx)
         postListView.addHeaderView(threadHeaderViewHolder.createView(AnkoContext.create(ctx)))
         threadHeaderViewHolder.bindData(model)
+
+        imageList?.let {
+            threadHeaderViewHolder.setImageList(it)
+        }
     }
 
     companion object {
         const val INTENT_KEY_TID = "tid"
+        const val INTENT_KEY_IMAGE_LIST = "image_list"
+        const val INTENT_KEY_BUNDLE = "bundle"
     }
 
     private val onRefreshListener = object : PullToRefreshListView.OnRefreshListener {

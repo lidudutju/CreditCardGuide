@@ -39,6 +39,7 @@ class ThreadListActivity : BaseActivity() {
                 titleLayout("讨论区")
 
                 pullToRefreshListView {
+                    setMode(PullToRefreshListView.Mode.BOTH)
                     threadListView = getRefreshableView()
                     setOnRefreshListener(onRefreshListener)
                 }.lparams {

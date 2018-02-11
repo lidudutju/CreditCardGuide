@@ -15,5 +15,5 @@ data class ThreadItemModel(val authorId: String,
                            val face: String,
                            val intro: String,
                            val targetUrl: String,
-                           val imgList: List<String>?,
+                           val imgList: ArrayList<String>?,
                            val title: String)

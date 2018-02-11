@@ -34,7 +34,7 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
     private var footerLayout: View? = null
     private var onRefreshListener: OnRefreshListener? = null
 
-    private var mode: Mode = Mode.BOTH
+    private var mode: Mode = Mode.getDefault()
     private var currentMode: Mode = Mode.PULL_FROM_START
     private var currentState: State = State.RESET
 
@@ -81,19 +81,22 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
         layoutParams.gravity = Gravity.CENTER
 
         headerLayout?.let {
-            if (headerLayout!!.parent == this@PullToRefreshListView) {
-                removeView(headerLayout)
+            if (it.parent == this@PullToRefreshListView) {
+                removeView(it)
             }
 
-            addView(headerLayout, 0, layoutParams)
+            if (mode.showHeaderLoadingLayout()) {
+                addView(it, 0, layoutParams)
+            }
         }
 
         footerLayout?.let {
-            if (footerLayout!!.parent == this@PullToRefreshListView) {
-                removeView(footerLayout)
+            if (it.parent == this@PullToRefreshListView) {
+                removeView(it)
             }
-
-            addView(footerLayout, -1, layoutParams)
+            if (mode.showFooterLoadingLayout()) {
+                addView(it, -1, layoutParams)
+            }
         }
 
         refreshLoadingViewSize()
@@ -163,15 +166,15 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
 
                     val absDiff = Math.abs(diff)
 
-                    if (absDiff > touchSlop) {
-                        if (diff >= 1f && isReadyForPullStart() && absDiff > Math.abs(oppositeDiff)) {
+                    if (absDiff > touchSlop && absDiff > Math.abs(oppositeDiff)) {
+                        if (mode.showHeaderLoadingLayout() && diff >= 1f && isReadyForPullStart()) {
                             lastMotionY = ev.y
                             lastMotionX = ev.x
                             isBeingDragged = true
                             if (mode == Mode.BOTH) {
                                 currentMode = Mode.PULL_FROM_START
                             }
-                        } else if (diff <= -1f && isReadyForPullEnd() && absDiff > Math.abs(oppositeDiff)) {
+                        } else if (mode.showFooterLoadingLayout() && diff <= -1f && isReadyForPullEnd()) {
                             lastMotionY = ev.y
                             lastMotionX = ev.x
                             isBeingDragged = true
@@ -350,6 +353,7 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
         return false
     }
 
+
     private fun isReadyForPullStart(): Boolean {
         val adapter = refreshableView.adapter
 
@@ -394,7 +398,19 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
          * Disables Pull-to-Refresh gesture handling, but allows manually setting the Refresh state via
          * [setRefreshing()][PullToRefreshBase.setRefreshing].
          */
-        MANUAL_REFRESH_ONLY(0x4)
+        MANUAL_REFRESH_ONLY(0x4);
+
+        companion object {
+            fun getDefault(): Mode {
+                return Mode.PULL_FROM_START
+            }
+
+        }
+
+        fun showHeaderLoadingLayout(): Boolean = this == Mode.PULL_FROM_START || this == Mode.BOTH
+
+        fun showFooterLoadingLayout(): Boolean = this == Mode.PULL_FROM_END || this == Mode.BOTH
+
     }
 
     enum class State(val state: Int) {
@@ -437,7 +453,7 @@ class PullToRefreshListView(private val ctx: Context, attrs: AttributeSet?, defS
     }
 
     companion object {
-        const val FRICTION = 3.8f
+        const val FRICTION = 2.8f
     }
 
 }

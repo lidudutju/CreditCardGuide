@@ -1,6 +1,8 @@
 package lidu.me.creditcardguide.adapter
 
 import android.content.Context
+import android.content.Intent
+import android.os.Bundle
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
@@ -144,22 +146,11 @@ class ThreadListAdapter(ctx: Context, data: List<ThreadItemModel>) :
             threadDesc.text = data.intro
 
             threadTitle.setOnClickListener {
-                try {
-                    val tid: String = getTid(data.targetUrl)!!
-                    ctx.startActivity<ThreadDetailActivity>(ThreadDetailActivity.INTENT_KEY_TID to tid)
-                } catch (e: Exception) {
-
-                }
-
+                toThreadDetailActivity(data)
             }
 
             threadDesc.setOnClickListener {
-                try {
-                    val tid: String = getTid(data.targetUrl)!!
-                    ctx.startActivity<ThreadDetailActivity>(ThreadDetailActivity.INTENT_KEY_TID to tid)
-                } catch (e: Exception) {
-
-                }
+                toThreadDetailActivity(data)
             }
 
             when (data.imgList?.size) {
@@ -207,6 +198,21 @@ class ThreadListAdapter(ctx: Context, data: List<ThreadItemModel>) :
                     threadImageContainer.visibility = View.GONE
                 }
             }
+        }
+
+        private fun toThreadDetailActivity(data: ThreadItemModel) {
+            try {
+                val tid: String = getTid(data.targetUrl)!!
+                val intent = Intent(ctx, ThreadDetailActivity::class.java)
+                val bundle = Bundle()
+                bundle.putStringArrayList(ThreadDetailActivity.INTENT_KEY_IMAGE_LIST, data.imgList)
+                bundle.putString(ThreadDetailActivity.INTENT_KEY_TID, tid)
+                intent.putExtra(ThreadDetailActivity.INTENT_KEY_BUNDLE, bundle)
+                ctx.startActivity(intent)
+            } catch (e: Exception) {
+
+            }
+
         }
 
         private fun getTid(url: String): String? {

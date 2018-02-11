@@ -35,6 +35,7 @@ class CardListFragment : BaseFragment() {
             titleLayout(title = "首页")
 
             pullToRefreshListView {
+                setMode(PullToRefreshListView.Mode.BOTH)
                 listView = getRefreshableView()
                 setOnRefreshListener(onRefreshListener)
             }.lparams(width = wrapContent, height = matchParent) {
