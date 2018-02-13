@@ -57,14 +57,15 @@ class ForumListFragment : BaseFragment() {
     private fun loadData() {
         launch(UI) {
             val data = TaskRepository.getForumList()
-            data.let {
-                if (data?.data?.list != null) {
-                    forumList = data.data.list
-                    refreshUi()
-                    pullToRefreshView.onRefreshComplete()
-                }
 
+            if (data != null) {
+                forumList = data.data.list
+                refreshUi()
+            } else {
+                toast(R.string.fail_to_get_data_form_server)
             }
+
+            pullToRefreshView.onRefreshComplete()
         }
     }
 
@@ -77,14 +78,15 @@ class ForumListFragment : BaseFragment() {
         const val TAG = "forumList"
     }
 
-    private val onRefreshListener = object : PullToRefreshBase.OnRefreshListener<GridView> {
+    private val onRefreshListener = object :
+            PullToRefreshBase.OnRefreshListener<GridView> {
 
         override fun onRefresh(listView: PullToRefreshBase<GridView>) {
             loadData()
         }
 
         override fun onLoadMore(listView: PullToRefreshBase<GridView>) {
-            toast("on load more!!")
+//            toast("on load more!!")
         }
 
     }

@@ -8,7 +8,6 @@ import kotlinx.coroutines.experimental.launch
 import lidu.me.creditcardguide.CommonUI.pullToRefreshListView
 import lidu.me.creditcardguide.CommonUI.titleLayout
 import lidu.me.creditcardguide.R
-import lidu.me.creditcardguide.adapter.AnkoListAdapter
 import lidu.me.creditcardguide.adapter.ThreadListAdapter
 import lidu.me.creditcardguide.model.ThreadItemModel
 import lidu.me.creditcardguide.network.TaskRepository
@@ -22,16 +21,16 @@ import org.jetbrains.anko.*
  */
 class ThreadListActivity : BaseActivity() {
 
+    private var page: Int = 1
+    private var threadListData: ArrayList<ThreadItemModel> =
+            ArrayList(32)
+
     private lateinit var fid: String
-
-    private var threadListData: ArrayList<ThreadItemModel> = ArrayList(32)
-
-    private lateinit var adapter: AnkoListAdapter<ThreadItemModel, AnkoViewHolder<ThreadItemModel>>
+    private lateinit var adapter: ThreadListAdapter
     private lateinit var threadListView: ListView
     private lateinit var pullToRefreshView: PullToRefreshListView
     private lateinit var titleBar: WhiteTitleBar
 
-    private var page: Int = 1
 
     override fun createView(ui: AnkoContext<Context>): View {
         return with(ui) {
@@ -73,14 +72,14 @@ class ThreadListActivity : BaseActivity() {
     private fun loadData() {
         launch(kotlinx.coroutines.experimental.android.UI) {
             val data = TaskRepository.getThreadList(fid, page.toString(), "15")
-            data.let {
-                if (data?.data?.list != null) {
-                    threadListData.addAll(data.data.list)
-                    adapter.updateData(threadListData)
-                    pullToRefreshView.onRefreshComplete()
-                }
-
+            if (data != null) {
+                threadListData.addAll(data.data.list)
+                adapter.updateData(threadListData)
+            } else {
+                toast(R.string.fail_to_get_data_form_server)
             }
+
+            pullToRefreshView.onRefreshComplete()
         }
     }
 
@@ -88,7 +87,8 @@ class ThreadListActivity : BaseActivity() {
         const val INTENT_KEY_FID = "fid"
     }
 
-    private val onRefreshListener = object : PullToRefreshBase.OnRefreshListener<ListView> {
+    private val onRefreshListener = object :
+            PullToRefreshBase.OnRefreshListener<ListView> {
 
         override fun onRefresh(listView: PullToRefreshBase<ListView>) {
             page = 1

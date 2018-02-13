@@ -4,4 +4,6 @@
     <string name="home_tab_forum">论坛</string>
     <string name="home_tab_favorite">收藏</string>
 
+    <string name="fail_to_get_data_form_server">无法从服务器拉取数据，请刷新重试</string>
+
 </resources>

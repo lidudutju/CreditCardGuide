@@ -20,7 +20,9 @@ class MainActivity : BaseActivity(), HomeTabView.HomeTabSelectCallback {
 
     private lateinit var tabView: HomeTabView
     private lateinit var pager: ViewPager
-    private val fragmentList: ArrayList<Fragment> = ArrayList(3)
+
+    private val fragmentList: ArrayList<Fragment> =
+            ArrayList(3)
 
     override fun onTabSelect(position: Int) {
         pager.setCurrentItem(position, false)
@@ -52,8 +54,10 @@ class MainActivity : BaseActivity(), HomeTabView.HomeTabSelectCallback {
                     bottomMargin = dip(50)
                 }
 
-                val iconResList = listOf(R.drawable.ic_tab_home_unselect, R.drawable.ic_tab_forum_unselect, R.drawable.ic_tab_favorite_unselect)
-                val selectIconResList = listOf(R.drawable.ic_tab_home_select, R.drawable.ic_tab_forum_select, R.drawable.ic_tab_favorite_select)
+                val iconResList = listOf(R.drawable.ic_tab_home_unselect,
+                        R.drawable.ic_tab_forum_unselect, R.drawable.ic_tab_favorite_unselect)
+                val selectIconResList = listOf(R.drawable.ic_tab_home_select,
+                        R.drawable.ic_tab_forum_select, R.drawable.ic_tab_favorite_select)
                 val textResList = listOf(R.string.home_tab_home, R.string.home_tab_forum, R.string.home_tab_favorite)
 
                 view {
@@ -79,6 +83,7 @@ class MainActivity : BaseActivity(), HomeTabView.HomeTabSelectCallback {
 
     class PagerAdapter(fm: FragmentManager, val list: List<Fragment>) :
             FragmentStatePagerAdapter(fm) {
+
         override fun getItem(position: Int): Fragment {
             return list[position]
         }

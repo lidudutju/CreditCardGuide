@@ -9,25 +9,26 @@ import kotlinx.coroutines.experimental.launch
 import lidu.me.creditcardguide.CommonUI.pullToRefreshListView
 import lidu.me.creditcardguide.CommonUI.titleLayout
 import lidu.me.creditcardguide.R
-import lidu.me.creditcardguide.adapter.AnkoListAdapter
 import lidu.me.creditcardguide.adapter.CardListAdapter
 import lidu.me.creditcardguide.model.CardListItemModel
 import lidu.me.creditcardguide.network.TaskRepository
 import lidu.me.creditcardguide.widget.PullToRefreshBase
 import lidu.me.creditcardguide.widget.PullToRefreshListView
 import org.jetbrains.anko.*
+import org.jetbrains.anko.support.v4.toast
 
 /**
  * Created by lidu on 2018/1/11.
  */
 class CardListFragment : BaseFragment() {
 
-    private val dataList: ArrayList<CardListItemModel> = ArrayList(32)
-    private lateinit var adapter: AnkoListAdapter<CardListItemModel, AnkoViewHolder<CardListItemModel>>
+    private val dataList: ArrayList<CardListItemModel> =
+            ArrayList(32)
+    private var page: Int = 1
+
+    private lateinit var adapter: CardListAdapter
     private lateinit var listView: ListView
     private lateinit var pullToRefreshView: PullToRefreshListView
-
-    private var page: Int = 1
 
     override fun createView(ui: AnkoContext<Context>): View = with(ui) {
         relativeLayout {
@@ -58,14 +59,16 @@ class CardListFragment : BaseFragment() {
     private fun loadData() {
         launch(UI) {
             val data = TaskRepository.getList(page.toString())
-            data.let {
-                if (data?.data?.list != null) {
-                    dataList.addAll(data.data.list)
-                    adapter.updateData(dataList)
-                    pullToRefreshView.onRefreshComplete()
-                }
 
+            if (data != null) {
+                dataList.addAll(data.data.list)
+                adapter.updateData(dataList)
+            } else {
+                toast(R.string.fail_to_get_data_form_server)
             }
+
+            pullToRefreshView.onRefreshComplete()
+
         }
     }
 
@@ -73,7 +76,8 @@ class CardListFragment : BaseFragment() {
         const val TAG = "cardList"
     }
 
-    private val onRefreshListener = object : PullToRefreshBase.OnRefreshListener<ListView> {
+    private val onRefreshListener = object :
+            PullToRefreshBase.OnRefreshListener<ListView> {
 
         override fun onRefresh(listView: PullToRefreshBase<ListView>) {
             page = 1

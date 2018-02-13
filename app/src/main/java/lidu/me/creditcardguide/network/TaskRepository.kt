@@ -1,8 +1,12 @@
 package lidu.me.creditcardguide.network
 
+import android.content.Context
+import lidu.me.creditcardguide.R
+import lidu.me.creditcardguide.ifFailed
 import lidu.me.creditcardguide.ifSucceeded
 import lidu.me.creditcardguide.model.*
 import org.jetbrains.anko.AnkoLogger
+import org.jetbrains.anko.toast
 import ru.gildor.coroutines.retrofit.awaitResult
 import ru.gildor.coroutines.retrofit.getOrNull
 
@@ -10,6 +14,8 @@ import ru.gildor.coroutines.retrofit.getOrNull
  * Created by lidu on 2018/1/9.
  */
 object TaskRepository : AnkoLogger {
+
+    private const val HTTP_CODE_OK = "200"
 
     private val retrofitApi: CreditCardApi by lazy {
         CreditCardApi.create()
@@ -19,7 +25,7 @@ object TaskRepository : AnkoLogger {
         retrofitApi.getList(pageSize, "15")
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code == "200") {
+                    if (it.code == HTTP_CODE_OK) {
                         return it
                     }
                 }
@@ -36,7 +42,7 @@ object TaskRepository : AnkoLogger {
         retrofitApi.getForumList()
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code == "200") {
+                    if (it.code == HTTP_CODE_OK) {
                         return it
                     }
                 }
@@ -47,7 +53,7 @@ object TaskRepository : AnkoLogger {
         retrofitApi.getThreadList(fid, pageSize, pageNum, "110100", "1")
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code == "200") {
+                    if (it.code == HTTP_CODE_OK) {
                         return it
                     }
                 }
@@ -58,7 +64,7 @@ object TaskRepository : AnkoLogger {
         retrofitApi.getThreadDetail(tid)
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code == "200") {
+                    if (it.code == HTTP_CODE_OK) {
                         return it
                     }
                 }
@@ -69,10 +75,11 @@ object TaskRepository : AnkoLogger {
         retrofitApi.getPostList(pageSize, pageCount, isLandload, tid)
                 .awaitResult()
                 .ifSucceeded {
-                    if (it.code == "200") {
+                    if (it.code == HTTP_CODE_OK) {
                         return it
                     }
                 }
         return null
     }
+
 }

@@ -9,7 +9,6 @@ import kotlinx.coroutines.experimental.launch
 import lidu.me.creditcardguide.CommonUI.pullToRefreshListView
 import lidu.me.creditcardguide.CommonUI.titleLayout
 import lidu.me.creditcardguide.R
-import lidu.me.creditcardguide.adapter.AnkoListAdapter
 import lidu.me.creditcardguide.adapter.PostListAdapter
 import lidu.me.creditcardguide.model.PostListItemModel
 import lidu.me.creditcardguide.model.ThreadDetailModel
@@ -29,14 +28,15 @@ class ThreadDetailActivity : BaseActivity() {
     private var imageList: ArrayList<String>? = null
 
     private lateinit var model: ThreadDetailModel
-    private var postList: ArrayList<PostListItemModel> = ArrayList(16)
+    private var postList: ArrayList<PostListItemModel> =
+            ArrayList(16)
 
     private lateinit var postListView: ListView
     private lateinit var titleBar: WhiteTitleBar
     private lateinit var pullToRefreshView: PullToRefreshListView
 
     private lateinit var threadHeaderViewHolder: ThreadHeaderViewHolder
-    private lateinit var adapter: AnkoListAdapter<PostListItemModel, AnkoViewHolder<PostListItemModel>>
+    private lateinit var adapter: PostListAdapter
 
     override fun createView(ui: AnkoContext<Context>): View {
         return with(ui) {
@@ -79,21 +79,22 @@ class ThreadDetailActivity : BaseActivity() {
 
     private fun loadData() {
         launch(UI) {
-            val posts = TaskRepository.getPostList("1", "10", "2", tid ?: "0")
-            posts?.let {
+            val posts = TaskRepository.getPostList("1",
+                    "10", "2", tid ?: "0")
+            val data = TaskRepository.getThreadDetail(tid ?: "0")
+
+            if (data != null && posts != null) {
+                //刷新Header
+                model = data.data
+                refreshHeaderView()
+                //刷新List
                 postList.addAll(posts.data.list)
                 adapter.updateData(postList)
-                pullToRefreshView.onRefreshComplete()
+            } else {
+                toast(R.string.fail_to_get_data_form_server)
             }
 
-            val data = TaskRepository.getThreadDetail(tid ?: "0")
-            data.let {
-                if (data?.data != null) {
-                    model = data.data
-                    refreshHeaderView()
-                }
-
-            }
+            pullToRefreshView.onRefreshComplete()
         }
     }
 
@@ -113,7 +114,9 @@ class ThreadDetailActivity : BaseActivity() {
         const val INTENT_KEY_BUNDLE = "bundle"
     }
 
-    private val onRefreshListener = object : PullToRefreshBase.OnRefreshListener<ListView> {
+    private val onRefreshListener = object :
+            PullToRefreshBase.OnRefreshListener<ListView> {
+
         override fun onLoadMore(listView: PullToRefreshBase<ListView>) {
             loadData()
         }
