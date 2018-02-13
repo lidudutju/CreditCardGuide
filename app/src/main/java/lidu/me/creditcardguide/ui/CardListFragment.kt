@@ -13,6 +13,7 @@ import lidu.me.creditcardguide.adapter.AnkoListAdapter
 import lidu.me.creditcardguide.adapter.CardListAdapter
 import lidu.me.creditcardguide.model.CardListItemModel
 import lidu.me.creditcardguide.network.TaskRepository
+import lidu.me.creditcardguide.widget.PullToRefreshBase
 import lidu.me.creditcardguide.widget.PullToRefreshListView
 import org.jetbrains.anko.*
 
@@ -36,9 +37,9 @@ class CardListFragment : BaseFragment() {
 
             pullToRefreshListView {
                 pullToRefreshView = this
-                setMode(PullToRefreshListView.Mode.BOTH)
-                listView = getRefreshableView()
-                setOnRefreshListener(onRefreshListener)
+                setMode(PullToRefreshBase.Mode.BOTH)
+                listView = refreshableView
+                addOnRefreshListener(onRefreshListener)
             }.lparams(width = wrapContent, height = matchParent) {
                 topMargin = dip(50)
             }
@@ -71,17 +72,17 @@ class CardListFragment : BaseFragment() {
         const val TAG = "cardList"
     }
 
-    private val onRefreshListener = object : PullToRefreshListView.OnRefreshListener {
-        override fun onRefresh(listView: ListView) {
+    private val onRefreshListener = object : PullToRefreshBase.OnRefreshListener<ListView> {
+
+        override fun onRefresh(listView: PullToRefreshBase<ListView>) {
             page = 1
             dataList.clear()
             loadData()
         }
 
-        override fun onLoadMore(listView: ListView) {
+        override fun onLoadMore(listView: PullToRefreshBase<ListView>) {
             page++
             loadData()
         }
-
     }
 }

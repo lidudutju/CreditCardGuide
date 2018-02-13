@@ -14,7 +14,7 @@ import lidu.me.creditcardguide.adapter.PostListAdapter
 import lidu.me.creditcardguide.model.PostListItemModel
 import lidu.me.creditcardguide.model.ThreadDetailModel
 import lidu.me.creditcardguide.network.TaskRepository
-import lidu.me.creditcardguide.widget.PullToRefreshListView
+import lidu.me.creditcardguide.widget.PullToRefreshBase
 import lidu.me.creditcardguide.widget.ThreadHeaderViewHolder
 import lidu.me.creditcardguide.widget.WhiteTitleBar
 import org.jetbrains.anko.*
@@ -46,9 +46,9 @@ class ThreadDetailActivity : BaseActivity() {
                 }
 
                 pullToRefreshListView {
-                    postListView = getRefreshableView()
+                    postListView = refreshableView
                     postListView.divider = null
-                    setOnRefreshListener(onRefreshListener)
+                    addOnRefreshListener(onRefreshListener)
                     backgroundColor = resources.getColor(R.color.customWhite)
                 }.lparams {
                     width = matchParent
@@ -109,20 +109,14 @@ class ThreadDetailActivity : BaseActivity() {
         const val INTENT_KEY_BUNDLE = "bundle"
     }
 
-    private val onRefreshListener = object : PullToRefreshListView.OnRefreshListener {
-        override fun onRefresh(listView: ListView) {
-//            page = 1
-//            postList.clear()
-//            loadData()
-            toast("on refresh!!")
+    private val onRefreshListener = object : PullToRefreshBase.OnRefreshListener<ListView> {
+        override fun onLoadMore(listView: PullToRefreshBase<ListView>) {
+
         }
 
-        override fun onLoadMore(listView: ListView) {
-//            page++
-//            loadData()
-            toast("on load more!!")
-        }
+        override fun onRefresh(listView: PullToRefreshBase<ListView>) {
 
+        }
     }
 
 }

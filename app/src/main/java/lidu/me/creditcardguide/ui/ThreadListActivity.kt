@@ -12,8 +12,8 @@ import lidu.me.creditcardguide.adapter.AnkoListAdapter
 import lidu.me.creditcardguide.adapter.ThreadListAdapter
 import lidu.me.creditcardguide.model.ThreadItemModel
 import lidu.me.creditcardguide.network.TaskRepository
+import lidu.me.creditcardguide.widget.PullToRefreshBase
 import lidu.me.creditcardguide.widget.PullToRefreshListView
-import lidu.me.creditcardguide.widget.WhiteTitleBar
 import org.jetbrains.anko.*
 
 /**
@@ -23,11 +23,11 @@ class ThreadListActivity : BaseActivity() {
 
     private lateinit var fid: String
 
-    private lateinit var threadListView: ListView
     private var threadListData: ArrayList<ThreadItemModel> = ArrayList(32)
 
-    private lateinit var titleLayout: WhiteTitleBar
     private lateinit var adapter: AnkoListAdapter<ThreadItemModel, AnkoViewHolder<ThreadItemModel>>
+    private lateinit var threadListView: ListView
+    private lateinit var pullToRefreshView: PullToRefreshListView
 
     private var page: Int = 1
 
@@ -39,11 +39,14 @@ class ThreadListActivity : BaseActivity() {
                 titleLayout("讨论区")
 
                 pullToRefreshListView {
-                    setMode(PullToRefreshListView.Mode.BOTH)
-                    threadListView = getRefreshableView()
-                    setOnRefreshListener(onRefreshListener)
+                    pullToRefreshView = this@pullToRefreshListView
+                    setMode(PullToRefreshBase.Mode.BOTH)
+                    threadListView = refreshableView
+                    addOnRefreshListener(onRefreshListener)
                 }.lparams {
                     topMargin = dip(50.5f)
+                    width = matchParent
+                    height = matchParent
                 }
             }
         }
@@ -54,7 +57,7 @@ class ThreadListActivity : BaseActivity() {
 
         fid = intent?.getStringExtra(INTENT_KEY_FID) ?: "0"
 
-        adapter = ThreadListAdapter(ctx, threadListData)
+        adapter = ThreadListAdapter(this@ThreadListActivity, threadListData)
         threadListView.adapter = adapter
 
         loadData()
@@ -67,6 +70,7 @@ class ThreadListActivity : BaseActivity() {
                 if (data?.data?.list != null) {
                     threadListData.addAll(data.data.list)
                     adapter.updateData(threadListData)
+                    pullToRefreshView.onRefreshComplete()
                 }
 
             }
@@ -77,18 +81,17 @@ class ThreadListActivity : BaseActivity() {
         const val INTENT_KEY_FID = "fid"
     }
 
-    private val onRefreshListener = object : PullToRefreshListView.OnRefreshListener {
-        override fun onRefresh(listView: ListView) {
+    private val onRefreshListener = object : PullToRefreshBase.OnRefreshListener<ListView> {
+
+        override fun onRefresh(listView: PullToRefreshBase<ListView>) {
             page = 1
             threadListData.clear()
             loadData()
-            toast("on refresh!!")
         }
 
-        override fun onLoadMore(listView: ListView) {
+        override fun onLoadMore(listView: PullToRefreshBase<ListView>) {
             page++
             loadData()
-            toast("on load more!!")
         }
 
     }
