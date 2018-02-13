@@ -14,6 +14,7 @@ import lidu.me.creditcardguide.model.ThreadItemModel
 import lidu.me.creditcardguide.network.TaskRepository
 import lidu.me.creditcardguide.widget.PullToRefreshBase
 import lidu.me.creditcardguide.widget.PullToRefreshListView
+import lidu.me.creditcardguide.widget.WhiteTitleBar
 import org.jetbrains.anko.*
 
 /**
@@ -28,6 +29,7 @@ class ThreadListActivity : BaseActivity() {
     private lateinit var adapter: AnkoListAdapter<ThreadItemModel, AnkoViewHolder<ThreadItemModel>>
     private lateinit var threadListView: ListView
     private lateinit var pullToRefreshView: PullToRefreshListView
+    private lateinit var titleBar: WhiteTitleBar
 
     private var page: Int = 1
 
@@ -36,7 +38,12 @@ class ThreadListActivity : BaseActivity() {
             relativeLayout {
                 backgroundColor = resources.getColor(R.color.customWhite)
 
-                titleLayout("讨论区")
+                titleLayout(title = "讨论区") {
+                    titleBar = it
+                    titleBar.showBackButton(View.OnClickListener { finish() })
+                }.lparams {
+                    leftMargin = dip(15)
+                }
 
                 pullToRefreshListView {
                     pullToRefreshView = this@pullToRefreshListView

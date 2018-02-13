@@ -39,6 +39,7 @@ class CardListFragment : BaseFragment() {
                 pullToRefreshView = this
                 setMode(PullToRefreshBase.Mode.BOTH)
                 listView = refreshableView
+                listView.divider = null
                 addOnRefreshListener(onRefreshListener)
             }.lparams(width = wrapContent, height = matchParent) {
                 topMargin = dip(50)

@@ -15,8 +15,8 @@ import lidu.me.creditcardguide.Utils
 import lidu.me.creditcardguide.imageUrl
 import lidu.me.creditcardguide.model.ThreadItemModel
 import lidu.me.creditcardguide.ui.AnkoViewHolder
+import lidu.me.creditcardguide.ui.ImagePreviewActivity
 import lidu.me.creditcardguide.ui.ThreadDetailActivity
-import lidu.me.creditcardguide.widget.ImagePreviewDialog
 import org.jetbrains.anko.*
 import kotlin.properties.Delegates
 
@@ -161,15 +161,18 @@ class ThreadListAdapter(ctx: Context, data: List<ThreadItemModel>) :
                     thirdImage.imageUrl = data.imgList[2]
 
                     firstImage.setOnClickListener {
-                        ImagePreviewDialog(ctx, data.imgList[0]).show()
+                        ctx.startActivity<ImagePreviewActivity>(
+                                ImagePreviewActivity.INTENT_KEY_IMAGE_URL to data.imgList[0])
                     }
 
                     secondImage.setOnClickListener {
-                        ImagePreviewDialog(ctx, data.imgList[1]).show()
+                        ctx.startActivity<ImagePreviewActivity>(
+                                ImagePreviewActivity.INTENT_KEY_IMAGE_URL to data.imgList[1])
                     }
 
                     thirdImage.setOnClickListener {
-                        ImagePreviewDialog(ctx, data.imgList[2]).show()
+                        ctx.startActivity<ImagePreviewActivity>(
+                                ImagePreviewActivity.INTENT_KEY_IMAGE_URL to data.imgList[2])
                     }
                 }
                 2 -> {
@@ -178,11 +181,13 @@ class ThreadListAdapter(ctx: Context, data: List<ThreadItemModel>) :
                     secondImage.imageUrl = data.imgList[1]
 
                     firstImage.setOnClickListener {
-                        ImagePreviewDialog(ctx, data.imgList[0]).show()
+                        ctx.startActivity<ImagePreviewActivity>(
+                                ImagePreviewActivity.INTENT_KEY_IMAGE_URL to data.imgList[0])
                     }
 
                     secondImage.setOnClickListener {
-                        ImagePreviewDialog(ctx, data.imgList[1]).show()
+                        ctx.startActivity<ImagePreviewActivity>(
+                                ImagePreviewActivity.INTENT_KEY_IMAGE_URL to data.imgList[1])
                     }
                 }
                 1 -> {
@@ -190,7 +195,8 @@ class ThreadListAdapter(ctx: Context, data: List<ThreadItemModel>) :
                     firstImage.imageUrl = data.imgList[0]
 
                     firstImage.setOnClickListener {
-                        ImagePreviewDialog(ctx, data.imgList[0]).show()
+                        ctx.startActivity<ImagePreviewActivity>(
+                                ImagePreviewActivity.INTENT_KEY_IMAGE_URL to data.imgList[0])
                     }
 
                 }

@@ -15,6 +15,7 @@ import lidu.me.creditcardguide.model.PostListItemModel
 import lidu.me.creditcardguide.model.ThreadDetailModel
 import lidu.me.creditcardguide.network.TaskRepository
 import lidu.me.creditcardguide.widget.PullToRefreshBase
+import lidu.me.creditcardguide.widget.PullToRefreshListView
 import lidu.me.creditcardguide.widget.ThreadHeaderViewHolder
 import lidu.me.creditcardguide.widget.WhiteTitleBar
 import org.jetbrains.anko.*
@@ -32,6 +33,7 @@ class ThreadDetailActivity : BaseActivity() {
 
     private lateinit var postListView: ListView
     private lateinit var titleBar: WhiteTitleBar
+    private lateinit var pullToRefreshView: PullToRefreshListView
 
     private lateinit var threadHeaderViewHolder: ThreadHeaderViewHolder
     private lateinit var adapter: AnkoListAdapter<PostListItemModel, AnkoViewHolder<PostListItemModel>>
@@ -46,6 +48,8 @@ class ThreadDetailActivity : BaseActivity() {
                 }
 
                 pullToRefreshListView {
+                    pullToRefreshView = this@pullToRefreshListView
+                    setMode(PullToRefreshBase.Mode.PULL_FROM_END)
                     postListView = refreshableView
                     postListView.divider = null
                     addOnRefreshListener(onRefreshListener)
@@ -79,7 +83,7 @@ class ThreadDetailActivity : BaseActivity() {
             posts?.let {
                 postList.addAll(posts.data.list)
                 adapter.updateData(postList)
-
+                pullToRefreshView.onRefreshComplete()
             }
 
             val data = TaskRepository.getThreadDetail(tid ?: "0")
@@ -111,7 +115,7 @@ class ThreadDetailActivity : BaseActivity() {
 
     private val onRefreshListener = object : PullToRefreshBase.OnRefreshListener<ListView> {
         override fun onLoadMore(listView: PullToRefreshBase<ListView>) {
-
+            loadData()
         }
 
         override fun onRefresh(listView: PullToRefreshBase<ListView>) {

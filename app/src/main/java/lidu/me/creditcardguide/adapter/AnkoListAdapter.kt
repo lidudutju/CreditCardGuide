@@ -12,7 +12,8 @@ import lidu.me.creditcardguide.ui.AnkoViewHolder
 open class AnkoListAdapter<in VM : Any, out VH : AnkoViewHolder<VM>>(
         private val context: Context,
         private var data: List<VM>,
-        private val factory: (ctx: Context) -> VH) : BaseAdapter() {
+        private val factory: (ctx: Context) -> VH
+) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         return if (convertView == null) {

@@ -31,6 +31,8 @@ class WhiteTitleBar(private val title: String) : AnkoComponent<Context> {
         return with(ui) {
             verticalLayout {
                 relativeLayout {
+                    backgroundColor = resources.getColor(R.color.customWhite)
+
                     backButton = imageView {
                         visibility = View.GONE
                     }.lparams {
@@ -41,7 +43,6 @@ class WhiteTitleBar(private val title: String) : AnkoComponent<Context> {
                     }
 
                     titleTextView = textView(title) {
-                        backgroundColor = resources.getColor(R.color.customWhite)
                         textColor = resources.getColor(R.color.customRed)
                         textSize = 18f
                         gravity = Gravity.CENTER
