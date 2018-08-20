@@ -1,13 +1,14 @@
 node {
-    stage 'Clone the project'
-    git 'https://github.com/lidudutju/CreditCardGuide'
+    stage('Clone the project') {
+        git 'https://github.com/lidudutju/CreditCardGuide'
+    }
 
-    dir('CreditCardGuide') {
+    dir('pipeline-demo') {
         stage('Compilation and Analysis') {
             parallel 'Compilation': {
-                sh "./gradlew clean"
-            }, 'Echoing': {
-                sh "echo -----> hello"
+                sh ./compilation.sh
+            }, 'Testing': {
+                sh "echo ----- hello"
             }
         }
     }
